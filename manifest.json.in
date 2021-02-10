@@ -1,0 +1,15 @@
+{
+    "name": "sycl.sugar",
+    "description": "A short description of your app",
+    "architecture": "@CLICK_ARCH@",
+    "title": "sycl",
+    "hooks": {
+        "sycl": {
+            "apparmor": "sycl.apparmor",
+            "desktop":  "sycl.desktop"
+        }
+    },
+    "version": "1.0.0",
+    "maintainer": "David P. Sugar <foobarc11@protonmail.ch>",
+    "framework" : "@CLICK_FRAMEWORK@"
+}
