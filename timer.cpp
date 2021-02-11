@@ -41,6 +41,16 @@ QString Timer::buttonText()
   return _button_text[_state];
 }
 
+QString Timer::laps()
+{
+  return QString("%1 / %2").arg(QString::number(_rounds_up), QString::number(_rounds));
+}
+
+// Progress value between 0.0 (0%) and 1.0
+float Timer::progress() {
+  return (float)(_rounds_up * (_work + _pause)) / (float)(_rounds * (_work + _pause));
+}
+
 /// Set the given _time as _display text.
 void Timer::time2Display()
 {
@@ -54,7 +64,16 @@ void Timer::toggleState()
     _state = Rest;
     _time = QTime(0, 0, _pause, 0);
   } else if (_state == Rest) {
-    _state = Work;
+    _rounds_up += 1;
+
+    if (_rounds_up == _rounds) { // workout complete
+      _state = Idle;
+      _rounds_up = 0;
+      _timer->stop();
+    } else { // next round
+      _state = Work;
+    }
+
     _time = QTime(0, 0, _work, 0);
   }
 

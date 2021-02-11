@@ -15,6 +15,8 @@ class Timer : public QObject
 
   Q_PROPERTY(QString display READ display WRITE setDisplay NOTIFY displayChanged)
   Q_PROPERTY(QString buttonText READ buttonText NOTIFY displayChanged)
+  Q_PROPERTY(QString laps READ laps NOTIFY displayChanged)
+  Q_PROPERTY(float progress READ progress NOTIFY displayChanged)
 
 public:
   Timer(QObject *parent = nullptr);
@@ -34,6 +36,7 @@ private:
   QTimer *_timer = nullptr;
   QTime _time;
   uint16_t _rounds = 8;
+  uint16_t _rounds_up = 0;
   uint16_t _work = 10;
   uint16_t _pause = 5;
   QString _display;
@@ -45,8 +48,9 @@ private:
 
   QString display();
   void setDisplay(QString value);
-
   QString buttonText();
+  QString laps();
+  float progress();
 
   void time2Display();
   void toggleState();

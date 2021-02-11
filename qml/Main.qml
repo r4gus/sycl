@@ -35,6 +35,13 @@ MainView {
       id: timer
     }
 
+    Connections {
+      target: timerCanvas
+      onDisplayChanged: {
+        timerCanvas.requestPaint()
+      }
+    }
+
     Page {
         anchors.fill: parent
 
@@ -57,22 +64,54 @@ MainView {
                 Layout.fillHeight: true
             }
 
-            Rectangle {
-              id: bgCircle
-              width: units.gu(40)
-              height: units.gu(40)
-              opacity: 0.85
-              color: "#191919"
-              radius: units.gu(20)
-              Layout.alignment: Qt.AlignHCenter
+            Canvas {
+                id:timerCanvas
+                Layout.alignment: Qt.AlignHCenter
 
-            }
+                property color arcColor:"lightgreen"
+                property color arcBackgroundColor:"#ccc"
+                property int bgArcWidth: units.gu(2)
+                property int arcWidth: units.gu(1)
+                property real progress: timer.progress * 360 // 0~360
+                property real radius: units.gu(16) //
+                property bool anticlockwise:false
 
-            Label {
-              id: timerLabel
-              Layout.alignment: Qt.AlignHCenter
-              text: timer.display
-              textSize: Label.XLarge
+                width: 2 * radius + bgArcWidth
+                height:  2 * radius + bgArcWidth
+
+                onPaint: {
+                    var ctx = getContext("2d")
+                    var text,text_w
+                    ctx.clearRect(0,0,width, height)
+                    ctx.beginPath()
+                    ctx.strokeStyle = arcBackgroundColor
+                    ctx.lineWidth = bgArcWidth
+                    ctx.arc(width/2,height/2,radius,0,Math.PI*2,anticlockwise)
+                    ctx.stroke()
+
+                    var r = progress*Math.PI/180
+                    ctx.beginPath()
+                    ctx.strokeStyle = arcColor
+                    ctx.lineWidth = arcWidth
+
+                    ctx.arc(width/2,height/2,radius,0-90*Math.PI/180,r-90*Math.PI/180,anticlockwise)
+                    ctx.stroke()
+                }
+
+                Label {
+                  id: timerLapsLabel
+                  anchors.bottom: timerLabel.top
+                  anchors.horizontalCenter: timerLabel.horizontalCenter
+                  text: timer.laps
+                  textSize: Label.Large
+                }
+
+                Label {
+                  id: timerLabel
+                  anchors.centerIn: parent
+                  text: timer.display
+                  textSize: Label.XLarge
+                }
             }
 
             Button {
