@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2021  David P. Sugar
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 3.
+ *
+ * sycl is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "timer.h"
 
 Timer::Timer(QObject *parent)
@@ -22,6 +38,7 @@ void Timer::update()
     toggleState();
   } else {
     _time = _time.addSecs(-1);
+    _seconds_up += 1;
     time2Display();
   }
 }
@@ -46,9 +63,9 @@ QString Timer::laps()
   return QString("%1 / %2").arg(QString::number(_rounds_up), QString::number(_rounds));
 }
 
-// Progress value between 0.0 (0%) and 1.0
+// Progress value between 0.0 (0%) and 360.0 (100%)
 float Timer::progress() {
-  return (float)(_rounds_up * (_work + _pause)) / (float)(_rounds * (_work + _pause));
+  return static_cast<float>(_rounds_up * (_work + _pause) + _seconds_up) / static_cast<float>(_rounds * (_work + _pause)) * 360.0;
 }
 
 /// Set the given _time as _display text.
@@ -65,6 +82,7 @@ void Timer::toggleState()
     _time = QTime(0, 0, _pause, 0);
   } else if (_state == Rest) {
     _rounds_up += 1;
+    _seconds_up = 0;
 
     if (_rounds_up == _rounds) { // workout complete
       _state = Idle;

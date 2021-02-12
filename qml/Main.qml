@@ -33,13 +33,7 @@ MainView {
 
     Timer {
       id: timer
-    }
-
-    Connections {
-      target: timerCanvas
-      onDisplayChanged: {
-        timerCanvas.requestPaint()
-      }
+      onDisplayChanged: timerCanvas.requestPaint()
     }
 
     Page {
@@ -48,6 +42,15 @@ MainView {
         header: PageHeader {
             id: header
             title: i18n.tr('sycl')
+
+            trailingActionBar {
+              actions: [
+                Action {
+                  iconName: "settings"
+                  text: "settings"
+                }
+              ]
+            }
         }
 
         ColumnLayout {
@@ -60,6 +63,8 @@ MainView {
                 bottom: parent.bottom
             }
 
+
+
             Item {
                 Layout.fillHeight: true
             }
@@ -68,11 +73,11 @@ MainView {
                 id:timerCanvas
                 Layout.alignment: Qt.AlignHCenter
 
-                property color arcColor:"lightgreen"
+                property color arcColor: UbuntuColors.orange
                 property color arcBackgroundColor:"#ccc"
                 property int bgArcWidth: units.gu(2)
                 property int arcWidth: units.gu(1)
-                property real progress: timer.progress * 360 // 0~360
+                property real progress: timer.progress // 0~360
                 property real radius: units.gu(16) //
                 property bool anticlockwise:false
 
@@ -112,6 +117,7 @@ MainView {
                   text: timer.display
                   textSize: Label.XLarge
                 }
+
             }
 
             Button {
