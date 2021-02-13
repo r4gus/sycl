@@ -72,6 +72,35 @@ MainView {
                   bottom: parent.bottom
               }
 
+              RowLayout {
+
+                Label {
+                  text: "On"
+                }
+
+                Button {
+                  id: onButton
+                  property date date: new Date()
+                  text: Qt.formatDateTime(date, "mm:ss")
+                  onClicked: PickerPanel.openDatePicker(onButton, "date", "Minutes|Seconds")
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Label {
+                  text: "Off"
+                }
+
+                Button {
+                  id: offButton
+                  property date date: new Date()
+                  text: Qt.formatDateTime(date, "mm:ss")
+                  onClicked: PickerPanel.openDatePicker(offButton, "date", "Minutes|Seconds")
+                }
+              }
+
 
 
               Item {
@@ -83,7 +112,7 @@ MainView {
                   Layout.alignment: Qt.AlignHCenter
 
                   property color arcColor: UbuntuColors.orange
-                  property color arcBackgroundColor: UbuntuColors.ash
+                  property color arcBackgroundColor: UbuntuColors.slate
                   property int bgArcWidth: units.gu(2)
                   property int arcWidth: units.gu(2)
                   property real progress: timer.progress // 0~360
@@ -100,8 +129,11 @@ MainView {
                       ctx.beginPath()
                       ctx.strokeStyle = arcBackgroundColor
                       ctx.lineWidth = bgArcWidth
+                      ctx.fillStyle = UbuntuColors.ash
                       ctx.arc(width/2,height/2,radius,0,Math.PI*2,anticlockwise)
+                      ctx.fill()
                       ctx.stroke()
+                      ctx.restore()
 
                       var r = progress*Math.PI/180
                       ctx.beginPath()
@@ -110,6 +142,7 @@ MainView {
 
                       ctx.arc(width/2,height/2,radius,0-90*Math.PI/180,r-90*Math.PI/180,anticlockwise)
                       ctx.stroke()
+                      ctx.restore()
                   }
 
                   Label {
@@ -173,6 +206,13 @@ MainView {
                   timer.set_on_time(onTimePicker.minutes, onTimePicker.seconds)
                   timer.set_off_time(offTimePicker.minutes, offTimePicker.seconds)
                 }
+            }
+
+            Button {
+              id: dateButton
+              property date date: new Date()
+              text: Qt.formatDateTime(date, "yyyy/MMMM")
+              onClicked: PickerPanel.openDatePicker(dateButton, "date", "Years|Months")
             }
         }
       }
