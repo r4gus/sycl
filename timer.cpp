@@ -22,7 +22,7 @@ Timer::Timer(QObject *parent)
   _timer = new QTimer(this);
   connect(_timer, &QTimer::timeout, this, &Timer::update);
 
-  _time = QTime(0, 0, _work, 0);
+  _time = parse_seconds(_work);
   time2Display();
 }
 
@@ -41,6 +41,37 @@ void Timer::update()
     _seconds_up += 1;
     time2Display();
   }
+}
+
+/// Set a new ON time for the timer.
+///
+/// This will stop and reset the timer.
+void Timer::set_on_time(qint32 minutes, qint32 seconds)
+{
+  _work = (static_cast<uint32_t>(minutes) * 60) + static_cast<uint32_t>(seconds);
+  if (_timer) {
+    _timer->stop();
+  }
+  _state = Idle;
+  _saved_state = Idle;
+  _seconds_up = 0;
+  _rounds_up = 0;
+  _time = parse_seconds(_work);
+  time2Display();
+}
+
+void Timer::set_off_time(qint32 minutes, qint32 seconds)
+{
+  _pause = (static_cast<uint32_t>(minutes) * 60) + static_cast<uint32_t>(seconds);
+  if (_timer) {
+    _timer->stop();
+  }
+  _state = Idle;
+  _saved_state = Idle;
+  _seconds_up = 0;
+  _rounds_up = 0;
+  _time = parse_seconds(_work);
+  time2Display();
 }
 
 QString Timer::display()
@@ -79,7 +110,7 @@ void Timer::toggleState()
 {
   if (_state == Work) {
     _state = Rest;
-    _time = QTime(0, 0, _pause, 0);
+    _time = parse_seconds(_pause);
   } else if (_state == Rest) {
     _rounds_up += 1;
     _seconds_up = 0;
@@ -92,7 +123,7 @@ void Timer::toggleState()
       _state = Work;
     }
 
-    _time = QTime(0, 0, _work, 0);
+    _time = parse_seconds(_work);
   }
 
   time2Display();
@@ -113,6 +144,15 @@ void Timer::toggle()
   }
 
   emit displayChanged();
+}
+
+QTime Timer::parse_seconds(uint32_t t)
+{
+  uint32_t h = t / 3600;
+  uint32_t m = (t - h * 3600) / 60;
+  uint32_t s = t % 60;
+
+  return QTime(h, m, s, 0);
 }
 
 void Timer::reset()

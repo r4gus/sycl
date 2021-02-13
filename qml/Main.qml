@@ -16,6 +16,7 @@
 
 import QtQuick 2.7
 import Ubuntu.Components 1.3
+import Ubuntu.Components.Pickers 1.0
 //import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0
@@ -36,101 +37,144 @@ MainView {
       onDisplayChanged: timerCanvas.requestPaint()
     }
 
-    Page {
-        anchors.fill: parent
+    PageStack {
+      id: pageStack
+      Component.onCompleted: push(mainPage)
 
-        header: PageHeader {
-            id: header
-            title: i18n.tr('sycl')
+      Page {
+          id: mainPage
+          visible: false
+          anchors.fill: parent
 
-            trailingActionBar {
-              actions: [
-                Action {
-                  iconName: "settings"
-                  text: "settings"
-                }
-              ]
-            }
-        }
+          header: PageHeader {
+              id: header
+              title: i18n.tr('sycl')
+
+              trailingActionBar {
+                actions: [
+                  Action {
+                    iconName: "settings"
+                    text: "settings"
+                    onTriggered: pageStack.push(settingsPage, {color: UbuntuColors.orange})
+                  }
+                ]
+              }
+          }
+
+          ColumnLayout {
+              spacing: units.gu(2)
+
+              anchors {
+                  margins: units.gu(2)
+                  top: header.bottom
+                  left: parent.left
+                  right: parent.right
+                  bottom: parent.bottom
+              }
+
+
+
+              Item {
+                  Layout.fillHeight: true
+              }
+
+              Canvas {
+                  id:timerCanvas
+                  Layout.alignment: Qt.AlignHCenter
+
+                  property color arcColor: UbuntuColors.orange
+                  property color arcBackgroundColor: UbuntuColors.ash
+                  property int bgArcWidth: units.gu(2)
+                  property int arcWidth: units.gu(2)
+                  property real progress: timer.progress // 0~360
+                  property real radius: units.gu(16) //
+                  property bool anticlockwise:false
+
+                  width: 2 * radius + bgArcWidth
+                  height:  2 * radius + bgArcWidth
+
+                  onPaint: {
+                      var ctx = getContext("2d")
+                      var text,text_w
+                      ctx.clearRect(0,0,width, height)
+                      ctx.beginPath()
+                      ctx.strokeStyle = arcBackgroundColor
+                      ctx.lineWidth = bgArcWidth
+                      ctx.arc(width/2,height/2,radius,0,Math.PI*2,anticlockwise)
+                      ctx.stroke()
+
+                      var r = progress*Math.PI/180
+                      ctx.beginPath()
+                      ctx.strokeStyle = arcColor
+                      ctx.lineWidth = arcWidth
+
+                      ctx.arc(width/2,height/2,radius,0-90*Math.PI/180,r-90*Math.PI/180,anticlockwise)
+                      ctx.stroke()
+                  }
+
+                  Label {
+                    id: timerLapsLabel
+                    anchors.bottom: timerLabel.top
+                    anchors.horizontalCenter: timerLabel.horizontalCenter
+                    text: timer.laps
+                    textSize: Label.Large
+                  }
+
+                  Label {
+                    id: timerLabel
+                    anchors.centerIn: parent
+                    text: timer.display
+                    textSize: Label.XLarge
+                  }
+
+              }
+
+              Button {
+                  Layout.alignment: Qt.AlignHCenter
+                  text: i18n.tr(timer.buttonText)
+                  onClicked: {
+                    timer.toggle()
+                  }
+              }
+
+              Item {
+                  Layout.fillHeight: true
+              }
+          }
+      }
+
+      Page {
+        title: "Settings"
+        id: settingsPage
+        visible: false
 
         ColumnLayout {
             spacing: units.gu(2)
-            anchors {
-                margins: units.gu(2)
-                top: header.bottom
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+
+            Label {
+                text: "On time: " + Qt.formatTime(onTimePicker.date, "mm:ss") + " mm/ss"
+            }
+            DatePicker {
+                id: onTimePicker
+                mode: "Minutes|Seconds"
             }
 
-
-
-            Item {
-                Layout.fillHeight: true
+            Label {
+                text: "Off time: " + Qt.formatTime(offTimePicker.date, "mm:ss") + " mm/ss"
             }
-
-            Canvas {
-                id:timerCanvas
-                Layout.alignment: Qt.AlignHCenter
-
-                property color arcColor: UbuntuColors.orange
-                property color arcBackgroundColor:"#ccc"
-                property int bgArcWidth: units.gu(2)
-                property int arcWidth: units.gu(1)
-                property real progress: timer.progress // 0~360
-                property real radius: units.gu(16) //
-                property bool anticlockwise:false
-
-                width: 2 * radius + bgArcWidth
-                height:  2 * radius + bgArcWidth
-
-                onPaint: {
-                    var ctx = getContext("2d")
-                    var text,text_w
-                    ctx.clearRect(0,0,width, height)
-                    ctx.beginPath()
-                    ctx.strokeStyle = arcBackgroundColor
-                    ctx.lineWidth = bgArcWidth
-                    ctx.arc(width/2,height/2,radius,0,Math.PI*2,anticlockwise)
-                    ctx.stroke()
-
-                    var r = progress*Math.PI/180
-                    ctx.beginPath()
-                    ctx.strokeStyle = arcColor
-                    ctx.lineWidth = arcWidth
-
-                    ctx.arc(width/2,height/2,radius,0-90*Math.PI/180,r-90*Math.PI/180,anticlockwise)
-                    ctx.stroke()
-                }
-
-                Label {
-                  id: timerLapsLabel
-                  anchors.bottom: timerLabel.top
-                  anchors.horizontalCenter: timerLabel.horizontalCenter
-                  text: timer.laps
-                  textSize: Label.Large
-                }
-
-                Label {
-                  id: timerLabel
-                  anchors.centerIn: parent
-                  text: timer.display
-                  textSize: Label.XLarge
-                }
-
+            DatePicker {
+                id: offTimePicker
+                mode: "Minutes|Seconds"
             }
 
             Button {
-                Layout.alignment: Qt.AlignHCenter
-                text: i18n.tr(timer.buttonText)
+                text: i18n.tr("set time")
                 onClicked: {
-                  timer.toggle()
+                  timer.set_on_time(onTimePicker.minutes, onTimePicker.seconds)
+                  timer.set_off_time(offTimePicker.minutes, offTimePicker.seconds)
                 }
             }
-
-            Item {
-                Layout.fillHeight: true
-            }
         }
+      }
     }
 }

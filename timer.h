@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QTime>
 #include <QString>
+#include <QVariant>
 #include <cstdint>
 
 enum TimerState { Idle, Work, Rest, Pause };
@@ -37,6 +38,8 @@ class Timer : public QObject
 public:
   Timer(QObject *parent = nullptr);
   ~Timer();
+  Q_INVOKABLE void set_on_time(qint32 minutes, qint32 seconds);
+  Q_INVOKABLE void set_off_time(qint32 minutes, qint32 seconds);
 
 signals:
   void displayChanged();
@@ -53,10 +56,9 @@ private:
   QTime _time;
   uint16_t _rounds = 8;
   uint16_t _rounds_up = 0;
-  uint16_t _work = 10;
-  uint16_t _pause = 5;
+  uint32_t _work = 10;
+  uint32_t _pause = 5;
   QString _display;
-  bool _paused = true;
   TimerState _state = Idle;
   TimerState _saved_state = Idle;
   uint16_t _seconds_up = 0;
@@ -71,6 +73,7 @@ private:
 
   void time2Display();
   void toggleState();
+  QTime parse_seconds(uint32_t t);
 };
 
 #endif

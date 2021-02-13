@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sycl.sugar\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-12 23:31+0000\n"
+"POT-Creation-Date: 2021-02-13 11:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:44 sycl.desktop.in.h:1
+#: ../qml/Main.qml:51 sycl.desktop.in.h:1
 msgid "sycl"
+msgstr ""
+
+#: ../qml/Main.qml:171
+msgid "set time"
 msgstr ""
